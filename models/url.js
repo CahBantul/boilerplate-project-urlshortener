@@ -1,15 +1,20 @@
-const Schema = require('mongoose').Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 // membuat schema model
-module.exports = {
-  Url: new Schema({
-    original_url: {
-      type: String,
-      required: true,
-    },
-    short_url: {
-      type: Number,
-      required: true,
-    },
-  }),
-};
+const UrlSchema = new Schema({
+  original_url: {
+    type: String,
+    required: true,
+  },
+  short_url: {
+    type: Number,
+    required: true,
+  },
+});
+
+// membuat model Url
+const Url = mongoose.model('Url', UrlSchema);
+
+// export Modul
+module.exports = Url;
