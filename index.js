@@ -3,6 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const dns = require('dns');
+const mongoose = require('mongoose');
+
+// koneksi ke mongoDB
+mongoose.connect(process.env.MONGO_URI);
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
