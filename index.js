@@ -5,6 +5,9 @@ const app = express();
 const dns = require('dns');
 const mongoose = require('mongoose');
 
+// import Model Url
+const Url = require('./models/url');
+
 // koneksi ke mongoDB
 mongoose.connect(process.env.MONGO_URI);
 
@@ -29,8 +32,24 @@ app.get('/', function (req, res) {
 app.get('/api/hello', function (req, res) {
   res.json({ greeting: 'hello API' });
 });
-app.get('/api/shorturl', (req, res) => {
-  dns.lookup('example.com', (err, address) => console.log(address));
+app.post('/api/shorturl', async (req, res) => {
+  const { url } = req.body;
+
+  // cek jumlah data dalam database
+  let countUrl = await Url.count();
+  countUrl++;
+
+  // filtering nonabjad pada akhir url
+  const UrlFiltered = url.replace(/[A-Za-z]$/, '');
+  console.log(UrlFiltered);
+
+  // validasi domain menggunakan dns.lookup
+  dns.lookup(url, (err, address) => {
+    if (address == undefined) {
+      res.json({ error: 'invalid url' });
+    } else {
+    }
+  });
 });
 app.listen(port, function () {
   console.log(`Listening on port ${port}`);
