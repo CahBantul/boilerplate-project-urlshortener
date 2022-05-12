@@ -67,6 +67,16 @@ app.post('/api/shorturl', async (req, res) => {
     res.json({ error: 'invalid url' });
   }
 });
+
+app.get('/api/shorturl/:shorturl', async (req, res) => {
+  Url.findOne({ short_url: req.params.shorturl })
+    .then((url) => {
+      res.redirect(url.original_url);
+    })
+    .catch((err) => {
+      res.json({ error: 'salah input url' });
+    });
+});
 app.listen(port, function () {
   console.log(`Listening on port ${port}`);
 });
