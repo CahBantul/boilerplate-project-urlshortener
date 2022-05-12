@@ -40,7 +40,7 @@ app.post('/api/shorturl', async (req, res) => {
   countUrl++;
 
   // filtering nonabjad pada akhir url
-  const UrlFiltered = url.replace(/[A-Za-z]$/, '');
+  const UrlFiltered = url.replace(/W$/, '');
   console.log(UrlFiltered);
 
   // validasi domain menggunakan dns.lookup
