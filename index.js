@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const dns = require('dns');
 const mongoose = require('mongoose');
 
 // import Model Url
@@ -18,9 +17,8 @@ app.use(cors());
 
 // json parser
 app.use(express.json());
-
 // urlencoded parser
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/public', express.static(`${process.cwd()}/public`));
 
@@ -33,23 +31,41 @@ app.get('/api/hello', function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 app.post('/api/shorturl', async (req, res) => {
-  const { url } = req.body;
+  const urlBody = req.body.url;
 
   // cek jumlah data dalam database
   let countUrl = await Url.count();
   countUrl++;
 
-  // filtering nonabjad pada akhir url
-  const UrlFiltered = url.replace(/W$/, '');
-  console.log(UrlFiltered);
+  // parsing url dari body
+  try {
+    const urlParse = new URL(urlBody);
 
-  // validasi domain menggunakan dns.lookup
-  dns.lookup(url, (err, address) => {
-    if (address == undefined) {
-      res.json({ error: 'invalid url' });
+    // cek sudah ada di databasae atau belum
+    const duplicate = await Url.findOne({ original_url: urlParse.origin });
+    if (duplicate) {
+      res.json({
+        original_url: duplicate.original_url,
+        short_url: duplicate.short_url,
+      });
     } else {
+      // save to mongoDB
+      Url.create({
+        original_url: urlParse.origin,
+        short_url: countUrl,
+      })
+        .then((result) => {
+          console.log(result);
+          res.json({
+            original_url: result.original_url,
+            short_url: result.short_url,
+          });
+        })
+        .catch((err) => console.log(err));
     }
-  });
+  } catch (error) {
+    res.json({ error: 'invalid url' });
+  }
 });
 app.listen(port, function () {
   console.log(`Listening on port ${port}`);
